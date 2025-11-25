@@ -1,161 +1,350 @@
 # Node.js Express Server Tutorial
 
-A tutorial Node.js server demonstrating Express.js framework fundamentals with two simple HTTP endpoints.
+A simple, beginner-friendly tutorial project demonstrating how to build a web server using Node.js and Express.js framework. This project features two REST API endpoints that return plain text responses.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Endpoints](#api-endpoints)
+- [Example Usage](#example-usage)
+- [Project Structure](#project-structure)
+- [Environment Variables](#environment-variables)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Overview
 
-This project showcases a basic Express.js server implementation with:
-- **GET /** - Returns "Hello world"
-- **GET /evening** - Returns "Good evening"
+This tutorial project serves as an introduction to building web servers with Express.js, the de facto standard server framework for Node.js. The application demonstrates:
 
-Express.js is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.
+- Express.js application initialization and configuration
+- Basic route handling with GET requests
+- Server port configuration using environment variables
+- Simple text response patterns
+
+The server exposes two endpoints:
+1. A root endpoint (`/`) that returns "Hello world"
+2. An evening endpoint (`/evening`) that returns "Good evening"
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) v18.0.0 or higher
-- [npm](https://www.npmjs.com/) v9.0.0 or higher
+Before running this project, ensure you have the following installed on your system:
+
+- **Node.js** - Version 18.x or higher (v20.x recommended)
+  - Check your version: `node --version`
+  - Download from: [https://nodejs.org/](https://nodejs.org/)
+
+- **npm** - Version 8.x or higher (comes bundled with Node.js)
+  - Check your version: `npm --version`
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd <project-directory>
-```
+1. **Clone the repository** (if applicable):
+   ```bash
+   git clone <repository-url>
+   cd <project-directory>
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-3. (Optional) Create a `.env` file for custom configuration:
-```bash
-cp .env.example .env
-```
+   This will install Express.js and all required dependencies listed in `package.json`.
+
+3. **Set up environment variables** (optional):
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit the `.env` file to customize your configuration if needed.
 
 ## Usage
 
-### Start the Server
+### Starting the Server
 
-#### Production Mode
+**Production mode:**
 ```bash
 npm start
 ```
 
-#### Development Mode (with auto-restart)
+**Development mode** (with auto-restart on file changes):
 ```bash
 npm run dev
 ```
 
-The server will start on `http://localhost:3000` by default.
-
-### Test the Endpoints
-
-Once the server is running, test the endpoints using curl:
-
-**Hello World Endpoint:**
-```bash
-curl http://localhost:3000/
-# Response: Hello world
+The server will start and display a message indicating the port it's listening on:
+```
+Server running on http://localhost:3000
 ```
 
-**Good Evening Endpoint:**
-```bash
-curl http://localhost:3000/evening
-# Response: Good evening
-```
+### Available npm Scripts
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| `start` | `npm start` | Start the server in production mode |
+| `dev` | `npm run dev` | Start the server with nodemon for development |
+| `test` | `npm test` | Run the test suite |
+| `test:watch` | `npm run test:watch` | Run tests in watch mode |
 
 ## API Endpoints
 
-| Method | Path      | Description                    | Response       |
-|--------|-----------|--------------------------------|----------------|
-| GET    | /         | Root endpoint                  | Hello world    |
-| GET    | /evening  | Evening greeting endpoint      | Good evening   |
+### GET /
 
-## Available Scripts
+Returns a simple greeting message.
 
-| Script            | Description                                    |
-|-------------------|------------------------------------------------|
-| `npm start`       | Start the server in production mode            |
-| `npm run dev`     | Start the server with nodemon (auto-restart)   |
-| `npm test`        | Run the test suite                             |
-| `npm run test:watch` | Run tests in watch mode                     |
-| `npm run test:coverage` | Run tests with coverage report            |
-| `npm run lint`    | Run ESLint for code quality                    |
-| `npm run format`  | Format code with Prettier                      |
+- **URL**: `/`
+- **Method**: `GET`
+- **Success Response**:
+  - **Code**: `200 OK`
+  - **Content**: `Hello world`
+  - **Content-Type**: `text/html; charset=utf-8`
 
-## Environment Variables
+### GET /evening
 
-| Variable   | Description              | Default |
-|------------|--------------------------|---------|
-| `PORT`     | Server listening port    | 3000    |
-| `NODE_ENV` | Environment mode         | development |
+Returns an evening greeting message.
+
+- **URL**: `/evening`
+- **Method**: `GET`
+- **Success Response**:
+  - **Code**: `200 OK`
+  - **Content**: `Good evening`
+  - **Content-Type**: `text/html; charset=utf-8`
+
+### Error Responses
+
+For any undefined routes, the server returns Express.js default 404 response:
+
+- **Code**: `404 Not Found`
+- **Content**: `Cannot GET /<path>`
+
+## Example Usage
+
+### Using curl
+
+**Test the root endpoint:**
+```bash
+curl http://localhost:3000/
+```
+**Expected output:**
+```
+Hello world
+```
+
+**Test the evening endpoint:**
+```bash
+curl http://localhost:3000/evening
+```
+**Expected output:**
+```
+Good evening
+```
+
+**Test with verbose output:**
+```bash
+curl -v http://localhost:3000/
+```
+**Expected output:**
+```
+*   Trying 127.0.0.1:3000...
+* Connected to localhost (127.0.0.1) port 3000
+> GET / HTTP/1.1
+> Host: localhost:3000
+> User-Agent: curl/8.0.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< X-Powered-By: Express
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 11
+< 
+Hello world
+```
+
+### Using JavaScript (fetch API)
+
+```javascript
+// Test root endpoint
+fetch('http://localhost:3000/')
+  .then(response => response.text())
+  .then(data => console.log(data));
+// Output: Hello world
+
+// Test evening endpoint
+fetch('http://localhost:3000/evening')
+  .then(response => response.text())
+  .then(data => console.log(data));
+// Output: Good evening
+```
+
+### Using a Web Browser
+
+Simply open your web browser and navigate to:
+- `http://localhost:3000/` - Displays "Hello world"
+- `http://localhost:3000/evening` - Displays "Good evening"
 
 ## Project Structure
 
 ```
-├── server.js          # Main Express application
-├── package.json       # Project configuration and dependencies
-├── .env               # Environment variables (not committed)
-├── .env.example       # Environment variable template
-├── .gitignore         # Git ignore patterns
-├── jest.config.js     # Jest testing configuration
-├── nodemon.json       # Nodemon development configuration
-├── .eslintrc.js       # ESLint code quality rules
-├── .prettierrc        # Prettier code formatting rules
-├── Dockerfile         # Docker container definition
-├── docker-compose.yml # Docker Compose configuration
-├── test/              # Test files
-│   └── server.test.js # Server endpoint tests
-└── docs/              # Documentation
-    └── API.md         # Detailed API documentation
+.
+├── server.js           # Main application entry point with Express routes
+├── package.json        # Project configuration and dependencies
+├── package-lock.json   # Dependency lock file
+├── .env                # Environment variables (not committed to git)
+├── .env.example        # Environment variables template
+├── .gitignore          # Git ignore patterns
+├── README.md           # Project documentation (this file)
+├── nodemon.json        # Nodemon configuration for development
+├── jest.config.js      # Jest testing configuration
+└── test/
+    └── server.test.js  # Test suite for endpoints
+```
+
+## Environment Variables
+
+The application supports the following environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | The port number the server listens on |
+| `NODE_ENV` | `development` | Application environment (development, test, production) |
+
+### Setting Environment Variables
+
+**Using a .env file (recommended for development):**
+
+Create a `.env` file in the project root:
+```env
+PORT=3000
+NODE_ENV=development
+```
+
+**Using command line:**
+```bash
+PORT=8080 npm start
+```
+
+**Using export (Unix/Linux/macOS):**
+```bash
+export PORT=8080
+npm start
+```
+
+**Using set (Windows CMD):**
+```cmd
+set PORT=8080
+npm start
 ```
 
 ## Testing
 
-Run the test suite:
+This project uses Jest as the testing framework with supertest for HTTP endpoint testing.
+
+### Running Tests
+
+**Run all tests once:**
 ```bash
 npm test
 ```
 
-Run tests with coverage:
+**Run tests in watch mode:**
 ```bash
-npm run test:coverage
+npm run test:watch
 ```
 
-## Docker Support
-
-Build and run with Docker:
+**Run tests with coverage report:**
 ```bash
-docker build -t nodejs-express-tutorial .
-docker run -p 3000:3000 nodejs-express-tutorial
+npm test -- --coverage
 ```
 
-Or use Docker Compose:
+### Test Coverage
+
+The test suite covers:
+- ✅ GET / endpoint returns status 200
+- ✅ GET / endpoint returns "Hello world"
+- ✅ GET /evening endpoint returns status 200
+- ✅ GET /evening endpoint returns "Good evening"
+- ✅ Invalid routes return 404 status
+
+## Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. **Fork the repository**
+
+2. **Create a feature branch:**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes** and ensure tests pass:
+   ```bash
+   npm test
+   ```
+
+4. **Commit your changes:**
+   ```bash
+   git commit -m "Add: Description of your changes"
+   ```
+
+5. **Push to your branch:**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+6. **Open a Pull Request**
+
+### Code Style Guidelines
+
+- Use 2-space indentation
+- Use single quotes for strings
+- Include semicolons at statement ends
+- Follow Express.js conventions and best practices
+- Write descriptive commit messages
+
+## Troubleshooting
+
+### Common Issues
+
+**Port already in use:**
+```
+Error: listen EADDRINUSE: address already in use :::3000
+```
+Solution: Either stop the process using port 3000 or set a different port:
 ```bash
-docker-compose up
+PORT=3001 npm start
 ```
 
-## Dependencies
+**Module not found:**
+```
+Error: Cannot find module 'express'
+```
+Solution: Install dependencies:
+```bash
+npm install
+```
 
-### Production
-- **express** (4.21.2) - Web application framework
-- **dotenv** (^16.4.7) - Environment variable management
+**Permission denied:**
+```
+Error: listen EACCES: permission denied 0.0.0.0:80
+```
+Solution: Use a port number above 1024 or run with elevated privileges.
 
-### Development
-- **jest** (^29.7.0) - Testing framework
-- **supertest** (^7.0.0) - HTTP testing library
-- **nodemon** (^3.1.7) - Development auto-restart
-- **eslint** (^8.57.1) - Code linting
-- **prettier** (^3.3.3) - Code formatting
+## Learn More
+
+- [Express.js Official Documentation](https://expressjs.com/)
+- [Node.js Official Documentation](https://nodejs.org/docs/)
+- [npm Documentation](https://docs.npmjs.com/)
 
 ## License
 
-MIT
+This project is open source and available under the [MIT License](LICENSE).
 
-## Further Learning
+---
 
-- [Express.js Official Documentation](https://expressjs.com/)
-- [Node.js Documentation](https://nodejs.org/docs/)
-- [Jest Testing Framework](https://jestjs.io/)
-- [Supertest HTTP Testing](https://github.com/ladjs/supertest)
+**Happy coding!** 🚀
+
+If you have questions or run into issues, please open an issue in the repository.
