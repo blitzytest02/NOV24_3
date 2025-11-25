@@ -1,0 +1,32 @@
+# Dependencies (will be reinstalled in container)
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Test files
+test/
+coverage/
+
+# Development files
+.eslintrc.js
+.prettierrc
+nodemon.json
+jest.config.js
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# OS files
+.DS_Store

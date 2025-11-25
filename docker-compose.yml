@@ -1,0 +1,146 @@
+# ============================================================================
+# Docker Compose Configuration for Node.js Express Server Tutorial
+# ============================================================================
+# This Docker Compose file orchestrates the local development environment for
+# the Express.js application. It provides containerized development with live
+# code reload, proper environment configuration, and service isolation.
+#
+# Usage:
+#   Start services:     docker-compose up
+#   Start in background: docker-compose up -d
+#   Stop services:       docker-compose down
+#   Rebuild and start:   docker-compose up --build
+#   View logs:           docker-compose logs -f app
+#
+# Per Agent Action Plan section 0.6 "New Build/Deployment Files" and
+# section 0.9 Group 5 "Deployment Files (Optional)".
+# ============================================================================
+
+# Docker Compose file format version
+# Using version 3.8 for compatibility with Docker Engine 19.03.0+
+# Provides full feature support including healthchecks and deploy configs
+version: '3.8'
+
+# =============================================================================
+# Service Definitions
+# =============================================================================
+services:
+  # ---------------------------------------------------------------------------
+  # Application Service: Node.js Express Server
+  # ---------------------------------------------------------------------------
+  # Main application service running the Express.js server with two endpoints:
+  # - GET / returns "Hello world"
+  # - GET /evening returns "Good evening"
+  # ---------------------------------------------------------------------------
+  app:
+    # Build configuration - uses local Dockerfile
+    build:
+      # Build context is the current directory
+      context: .
+      # Dockerfile location (relative to context)
+      dockerfile: Dockerfile
+      # Build arguments (can be overridden during build)
+      args:
+        - NODE_ENV=development
+
+    # Container identification
+    # Descriptive name for easy identification in docker commands
+    container_name: nov24-3-app
+
+    # Hostname for network identification
+    hostname: express-server
+
+    # Port mapping configuration
+    # Maps container port to host port for local access
+    # Format: "HOST_PORT:CONTAINER_PORT"
+    ports:
+      - "3000:3000"
+
+    # Environment variables for the container
+    # These override any defaults set in the Dockerfile
+    environment:
+      # Server port configuration
+      - PORT=3000
+      # Development environment mode
+      # Enables detailed error messages and debugging features
+      - NODE_ENV=development
+      # Optional: Enable Node.js debugging (uncomment if needed)
+      # - DEBUG=express:*
+
+    # Volume mounts for live code reload during development
+    # Changes to source files are immediately reflected in the container
+    volumes:
+      # Mount current directory to /app in container
+      # Enables live code reload without rebuilding the image
+      - .:/app
+      # Anonymous volume for node_modules to prevent host override
+      # Preserves container's node_modules from npm ci/install
+      - /app/node_modules
+
+    # Working directory inside the container
+    working_dir: /app
+
+    # Restart policy configuration
+    # 'unless-stopped' ensures the container restarts automatically
+    # unless explicitly stopped by the user
+    restart: unless-stopped
+
+    # Network configuration
+    # Connects to the custom bridge network for service isolation
+    networks:
+      - app-network
+
+    # Health check configuration
+    # Monitors container health by checking the root endpoint
+    healthcheck:
+      # Test command to verify application is responding
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      # Time between health checks
+      interval: 30s
+      # Maximum time to wait for a response
+      timeout: 10s
+      # Number of consecutive failures before marking unhealthy
+      retries: 3
+      # Grace period before starting health checks
+      start_period: 10s
+
+    # Logging configuration
+    # Configures container log management
+    logging:
+      driver: "json-file"
+      options:
+        # Maximum size per log file
+        max-size: "10m"
+        # Maximum number of log files to retain
+        max-file: "3"
+
+    # Standard input and TTY allocation for interactive mode
+    # Useful when running with 'docker-compose run' for debugging
+    stdin_open: true
+    tty: true
+
+# =============================================================================
+# Network Definitions
+# =============================================================================
+# Custom networks provide isolation and enable service-to-service communication
+networks:
+  # Application network for service isolation
+  app-network:
+    # Bridge driver for local development
+    # Creates an isolated network for the application services
+    driver: bridge
+    # Network name for identification
+    name: nov24-3-network
+    # Driver-specific options
+    driver_opts:
+      # Enable inter-container communication
+      com.docker.network.bridge.enable_icc: "true"
+
+# =============================================================================
+# Volume Definitions (Optional)
+# =============================================================================
+# Named volumes can be defined here for data persistence
+# Currently not needed for this tutorial application
+# volumes:
+#   app-data:
+#     driver: local
