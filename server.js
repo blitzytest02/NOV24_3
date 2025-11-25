@@ -136,7 +136,14 @@ app.get('/evening', (req, res) => {
 // ============================================================================
 
 /**
- * Start the HTTP server
+ * Start the HTTP server (only when running directly, not when imported for tests)
+ * 
+ * The condition `require.main === module` checks if this file is being run directly
+ * (e.g., `node server.js`) rather than being imported/required by another module
+ * (e.g., in test files). This pattern is important for:
+ *   - Allowing supertest to create its own test server instances
+ *   - Preventing port conflicts when running tests
+ *   - Ensuring the server only starts in production/development, not during testing
  * 
  * app.listen() is a convenience method that creates an HTTP server and binds
  * it to the specified port. It's equivalent to:
@@ -149,54 +156,54 @@ app.get('/evening', (req, res) => {
  * 
  * The callback function is used here to log a confirmation message indicating
  * the server has started successfully and is ready to handle requests.
- * 
- * Important: When running tests with supertest, the server binding is handled
- * by supertest, so this listen() call only executes when running the server directly.
  */
-const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log('Available endpoints:');
-  console.log(`  GET /        - Returns "Hello world"`);
-  console.log(`  GET /evening - Returns "Good evening"`);
-});
-
-// ============================================================================
-// Graceful Shutdown Handling
-// ============================================================================
-
-/**
- * Handle graceful shutdown on SIGTERM signal
- * 
- * SIGTERM is the termination signal sent by process managers (like Docker, Kubernetes,
- * PM2) when they want to stop the application gracefully. This handler ensures
- * the server closes all connections before the process exits.
- * 
- * Graceful shutdown is important for:
- *   - Completing in-flight requests before shutting down
- *   - Releasing resources (database connections, file handles, etc.)
- *   - Ensuring clean container orchestration in production environments
- */
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
+/* istanbul ignore next - Server startup code runs only when executed directly, not when imported for tests */
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log('Available endpoints:');
+    console.log('  GET /        - Returns "Hello world"');
+    console.log('  GET /evening - Returns "Good evening"');
   });
-});
 
-/**
- * Handle graceful shutdown on SIGINT signal (Ctrl+C)
- * 
- * SIGINT is sent when a user presses Ctrl+C in the terminal.
- * This provides a clean shutdown experience during local development.
- */
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
+  // ============================================================================
+  // Graceful Shutdown Handling
+  // ============================================================================
+
+  /**
+   * Handle graceful shutdown on SIGTERM signal
+   * 
+   * SIGTERM is the termination signal sent by process managers (like Docker, Kubernetes,
+   * PM2) when they want to stop the application gracefully. This handler ensures
+   * the server closes all connections before the process exits.
+   * 
+   * Graceful shutdown is important for:
+   *   - Completing in-flight requests before shutting down
+   *   - Releasing resources (database connections, file handles, etc.)
+   *   - Ensuring clean container orchestration in production environments
+   */
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
   });
-});
+
+  /**
+   * Handle graceful shutdown on SIGINT signal (Ctrl+C)
+   * 
+   * SIGINT is sent when a user presses Ctrl+C in the terminal.
+   * This provides a clean shutdown experience during local development.
+   */
+  process.on('SIGINT', () => {
+    console.log('SIGINT signal received: closing HTTP server');
+    server.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
+  });
+}
 
 // ============================================================================
 // Module Export
