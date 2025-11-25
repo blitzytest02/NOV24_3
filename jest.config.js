@@ -22,7 +22,7 @@ module.exports = {
   /**
    * Test File Pattern
    * Matches test files located in the test directory with .test.js extension.
-   * Pattern: **/test/**/*.test.js
+   * Pattern: test folder with .test.js extension
    * Example matches: test/server.test.js, test/routes/api.test.js
    */
   testMatch: ['**/test/**/*.test.js'],
